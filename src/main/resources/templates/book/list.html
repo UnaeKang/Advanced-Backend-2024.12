@@ -12,6 +12,9 @@
   <h1>도서 목록
     <span style="font-size: 16px; margin-left: 100px;">
       <a th:href="@{/book/insert}">도서 등록</a>
+      <span style="margin-left: 40px">페이지</span>
+      <input type="text" id="page" value="1">
+      <button onclick="gotoPage()">페이지 이동</button>
     </span>
   </h1>
   <hr>

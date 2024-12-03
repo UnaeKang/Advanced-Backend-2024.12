@@ -91,7 +91,7 @@ public class UserController {
             session.setAttribute("sessUid", uid);
             session.setAttribute("sessUname", user.getUname());
             msg = user.getUname() + "님 환영합니다.";
-            url = "/user/list";
+            url = "/mall/list";
         } else if (result == UserService.WRONG_PASSWORD) {
             msg = "패스워드가 틀렸습니다.";
             url = "/user/login";
