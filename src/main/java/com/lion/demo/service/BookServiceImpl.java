@@ -20,15 +20,27 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findById(bid).orElse(null);
     }
 
-//    @Override
-//    public List<Book> getBooks() {
-//        return bookRepository.findAll();
-//    }
 
     @Override
     public List<Book> getBooksBypage(int page) {
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
         Page<Book> bookPage = bookRepository.findAll(pageable);
+        return bookPage.getContent();
+    }
+
+    @Override
+    public List<Book> getBookList(int page, String field, String query) {
+        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
+        Page<Book> bookPage = null;
+        if (field.equals("title")) {
+            bookPage = bookRepository.findByTitleContaining(query, pageable);
+        } else if (field.equals("author")) {
+            bookPage = bookRepository.findByAuthorContaining(query, pageable);
+        } else if (field.equals("company")) {
+            bookPage = bookRepository.findByCompanyContaining(query, pageable);
+        } else {
+            bookPage = bookRepository.findBySummaryContaining(query, pageable);
+        }
         return bookPage.getContent();
     }
 
