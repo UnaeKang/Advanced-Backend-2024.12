@@ -36,7 +36,7 @@ public class ExecutionTimeAspect {
                 "Method: " + className + "." + methodName + "() | Duration : " + duration
                         + "ms");
 
-        return null;
+        return result;
     }
 
 

@@ -32,8 +32,9 @@ public class PermissionAspect {
         String uid = (String) session.getAttribute("sessUid");
         User currentUser = userService.findByUid(uid);
 
-        if (!currentUser.getRole().equals("requiredPermission")) {
+        if (!currentUser.getRole().equals(requiredPermission)) {
             throw new SecurityException("권한 부족: " + requiredPermission);
         }
+        System.out.println("권한 검증 통과: " + joinPoint.getSignature());
     }
 }
