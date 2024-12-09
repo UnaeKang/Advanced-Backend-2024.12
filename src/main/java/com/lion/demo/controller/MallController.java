@@ -24,7 +24,7 @@ public class MallController {
 
     @GetMapping("/list")
     public String list(Model model){
-        List<Book> bookList = bookService.getBooksBypage(3);
+        List<Book> bookList = bookService.getBooksByPage(3);
         model.addAttribute("bookList",bookList);
         return "mall/list";
     }

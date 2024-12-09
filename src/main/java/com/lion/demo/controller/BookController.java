@@ -3,47 +3,58 @@ package com.lion.demo.controller;
 import com.lion.demo.entity.Book;
 import com.lion.demo.service.BookService;
 import com.lion.demo.service.CsvFileReaderService;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List;
-import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/book")
 public class BookController {
-
-    @Autowired
-    private CsvFileReaderService csvFileReaderService;
-    @Autowired
-    private BookService bookService;
+    @Autowired private CsvFileReaderService csvFileReaderService;
+    @Autowired private BookService bookService;
 
     @GetMapping("/list")
-    public String list(@RequestParam(name = "p", defaultValue = "1") int page,
-            @RequestParam(name = "f", defaultValue = "title") String field,
-            @RequestParam(name = "q", defaultValue = "") String query,
-            Model model) {
-//        List<Book> bookList = bookService.getBooksBypage(page);
-        List<Book> bookList = bookService.getBookList(page, field, query);
-        model.addAttribute("bookList", bookList);
+    public String list(@RequestParam(name="p", defaultValue = "1") int page,
+            @RequestParam(name="f", defaultValue = "title") String field,
+            @RequestParam(name="q", defaultValue = "") String query,
+            HttpSession session, Model model) {
+
+//        List<Book> bookList = bookService.getBookList(page, field, query);
+        Page<Book> pagedResult = bookService.getPagedBooks(page, field, query);
+        int totalPages = pagedResult.getTotalPages();
+        int startPage = (int) Math.ceil((page - 0.5) / BookService.PAGE_SIZE - 1) * BookService.PAGE_SIZE + 1;
+        int endPage = Math.min(startPage + BookService.PAGE_SIZE - 1, totalPages);
+        List<Integer> pageList = new ArrayList<>();
+        for (int i = startPage; i <= endPage; i++)
+            pageList.add(i);
+
+        session.setAttribute("menu", "book");
+        session.setAttribute("currentBookPage", page);
+        model.addAttribute("bookList", pagedResult.getContent());
+        model.addAttribute("field", field);
         model.addAttribute("query", query);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("pageList", pageList);
         return "book/list";
     }
 
     @GetMapping("/detail/{bid}")
     public String detail(@PathVariable long bid,
-            @RequestParam(name = "q", defaultValue = "") String query,
+            @RequestParam(name="q", defaultValue = "") String query,
             Model model) {
         Book book = bookService.findByBid(bid);
         if (!query.equals("")) {
             String highlightedSummary = book.getSummary()
-                    .replaceAll(query,
-                            "<span style='background-color: skyblue;'>" + query + "</span>");
+                    .replaceAll(query, "<span style='background-color: skyblue;'>" + query + "</span>");
             book.setSummary(highlightedSummary);
         }
         model.addAttribute("book", book);
@@ -61,10 +72,11 @@ public class BookController {
         return "redirect:/book/list";
     }
 
-
+    // 초기 데이터
     @GetMapping("/yes24")
     public String yes24() throws IOException {
         csvFileReaderService.csvFileToH2();
         return "redirect:/book/list";
     }
+
 }
