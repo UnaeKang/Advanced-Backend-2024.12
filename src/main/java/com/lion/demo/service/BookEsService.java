@@ -21,12 +21,9 @@ import java.util.List;
 
 @Service
 public class BookEsService {
-
     public static final int PAGE_SIZE = 10;
-    @Autowired
-    private BookEsRepository bookEsRepository;
-    @Autowired
-    private ElasticsearchTemplate elasticsearchTemplate;
+    @Autowired private BookEsRepository bookEsRepository;
+    @Autowired private ElasticsearchTemplate elasticsearchTemplate;
 
     public BookEs findById(String bookId) {
         return bookEsRepository.findById(bookId).orElse(null);
@@ -57,21 +54,18 @@ public class BookEsService {
         if (keyword.isEmpty()) {
             return new StringQuery("{\"match_all\": {}}");
         }
-//        String queryString = String.format(
-//                "{\"match\": {\"%s\": {\"query\": \"%s\", \"fuzziness\": \"AUTO\"}}}",
-//                field, keyword
-//        );
         String queryString = String.format("""
                         {
                             "match": {
                                 "%s": {
-                                    "query" : "%s",
-                                    "fuzziness" : AUTO"
+                                    "query": "%s",
+                                    "fuzziness": "AUTO"
                                 }
                             }
                         }
-                        """,
-                field, keyword);
+                """,
+                field, keyword
+        );
         return new StringQuery(queryString);
     }
 }

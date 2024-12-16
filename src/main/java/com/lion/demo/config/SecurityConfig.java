@@ -23,11 +23,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/book/list", "/book/detail/**", "/bookEs/list", "/bookEs/detail/**",
                                 "/misc/**", "/actuator/**"
-                                ,"/restaurant/**"
+                                ,"/restaurant/list","/restaurant/detail/**"
                                 ,"/websocket/**", "/echo", "/personal",
                                 "/mall/list", "/mall/detail/**", "/user/register", "/h2-console", "/demo/**",
                                 "/img/**", "/js/**", "/css/**", "/error/**").permitAll()
                         .requestMatchers("/book/insert", "/book/yes24", "/bookEs/yes24", "/order/listAll",
+                                "/restaurant/init",
                                 "/order/bookStat", "/user/delete", "/user/list").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
