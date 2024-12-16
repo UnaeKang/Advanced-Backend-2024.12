@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class ChattingWebSocketHandler extends TextWebSocketHandler {
+
     private final Map<String, WebSocketSession> userSessions = new ConcurrentHashMap<>();
     private final Map<String, String> userStatus = new ConcurrentHashMap<>();
 
@@ -30,7 +31,8 @@ public class ChattingWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message)
+            throws Exception {
         String userId = getUserId(session);
         String payload = message.getPayload();      // recipientId : message
         String[] parts = payload.split(":", 2);
@@ -42,16 +44,17 @@ public class ChattingWebSocketHandler extends TextWebSocketHandler {
 
             WebSocketSession targetSession = userSessions.get(recipientId);
             String targetStatus = userStatus.get(recipientId);      // "home", "chat:maria"
-            if (targetStatus.substring(0, 4).equals("chat"))
-                targetStatus = targetStatus.substring(5);
             if (targetSession != null && targetSession.isOpen()) {
-                targetSession.sendMessage(new TextMessage("from " + userId + ": " + msg));
+                if (targetStatus.equals("home") || targetStatus.equals("chat:" + userId)) {
+                    targetSession.sendMessage(new TextMessage("from " + userId + ": " + msg));
+                }
             }
         }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status)
+            throws Exception {
         String userId = getUserId(session);
         if (userId != null) {
             userSessions.remove(userId);
@@ -59,10 +62,22 @@ public class ChattingWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    public int isReadable(String senderUid, String recipientId) {
+        WebSocketSession targetSession = userSessions.get(recipientId);
+        if (targetSession != null && targetSession.isOpen()) {
+            String targetStatus = userStatus.get(recipientId);
+            if(targetStatus.equals("chat:" + senderUid)) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
     private String getUserId(WebSocketSession session) {
         Object userId = session.getAttributes().get("userId");
         return userId != null ? userId.toString() : null;
     }
+
     private String getStatus(WebSocketSession session) {
         Object status = session.getAttributes().get("status");
         return status != null ? status.toString() : null;

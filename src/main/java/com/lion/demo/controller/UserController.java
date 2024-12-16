@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public String updateProc(String uid, String pwd, String pwd2, String uname, String email, String role) {
+    public String updateProc(String uid, String pwd, String pwd2, String uname, String email, String profileUrl, String role, String provider) {
         User user = userService.findByUid(uid);
         if (pwd.equals(pwd2) && pwd.length() >= 4) {
             String hashedPwd = BCrypt.hashpw(pwd, BCrypt.gensalt());
@@ -73,7 +73,9 @@ public class UserController {
         }
         user.setUname(uname);
         user.setEmail(email);
+        user.setProfileUrl(profileUrl);
         user.setRole(role);
+        user.setProvider(provider);
         userService.updateUser(user);
         return "redirect:/user/list";
     }
@@ -115,7 +117,7 @@ public class UserController {
         session.setAttribute("sessUid", uid);
         session.setAttribute("sessUname", user.getUname());
         String msg = user.getUname() + "님 환영합니다.";
-        String url = "/book/list";
+        String url = "/bookEs/list";
         model.addAttribute("msg", msg);
         model.addAttribute("url", url);
         return "common/alertMsg";

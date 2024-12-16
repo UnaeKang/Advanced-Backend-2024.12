@@ -5,7 +5,9 @@ function connect() {
   userId = document.getElementById('userId').value;
   const chattingStatus = document.getElementById('chattingStatus').value;
   const serverPort = $('#serverPort').val();
-  socket = new WebSocket('ws://localhost:' + serverPort + '/chat?userId=' + userId + '&status=' + chattingStatus);
+  const serverIp = $('#serverIp').val();
+//	socket = new WebSocket('ws://localhost:' + serverPort + '/chat?userId=' + userId + '&status=' + chattingStatus);
+  socket = new WebSocket(`ws://${serverIp}:${serverPort}/chat?userId=${userId}&status=${chattingStatus}`);
 
   socket.onopen = () => {
     console.log('Connected as ' + userId);
@@ -45,7 +47,7 @@ function updateChatterList(chatterList) {
 
     row.innerHTML = `
             <td style="text-align: center;">
-                <img src="${chatter.friendProfileUrl}" alt="${chatter.friendUname}" width="40" style="border-radius: 50%">
+                <img src="${chatter.friendProfileUrl}" alt="${chatter.friendUname}" width="40" style="border-radius: 50%; text-align: center;">
             </td>
             <td>
                 <a href="/chatting/chat/${chatter.friendUid}">
@@ -57,7 +59,6 @@ function updateChatterList(chatterList) {
                 <span style="font-size: 0.8rem;">
                     ${chatter.timeStr}
                     ${chatter.newCount !== 0 ? `<br><span class="new-count">${chatter.newCount}</span>` : ''}
-
                 </span>
             </td>
         `;
